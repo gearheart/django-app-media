@@ -37,7 +37,7 @@ class Command(BaseCommand):
 # Almost completely took from
 # http://www.arnebrodowski.de/blog/distributing-mediafiles-with-django-apps.html
 
-def link_app_media(app_label, verbosity, **kwargs):
+def link_app_media(app_path, verbosity, **kwargs):
     """
     Looks if app has 'media' directory.
     If it has - this directory is then symlinked to the ``MEDIA_ROOT``
@@ -51,10 +51,14 @@ def link_app_media(app_label, verbosity, **kwargs):
     app_dir = os.path.dirname(app_module.__file__)
     app_media = os.path.join(app_dir, 'media')
 
-    if os.path.exists(app_media):
-        APP_MEDIA_DIR = getattr(settings, 'APP_MEDIA_DIR',
+    if not os.path.exists(app_media):
+        return
+
+    APP_MEDIA_DIR = getattr(settings, 'APP_MEDIA_DIR',
                 os.path.join(settings.MEDIA_ROOT, 'apps'))
-        dest = os.path.join(APP_MEDIA_DIR, app_name)
+    if not os.path.exists(APP_MEDIA_DIR):
+        os.makedirs(APP_MEDIA_DIR)
+    dest = os.path.join(APP_MEDIA_DIR, app_name)
     if not os.path.exists(dest):
         try:
             os.symlink(app_media, dest) # will not work on windows.
@@ -65,6 +69,6 @@ def link_app_media(app_label, verbosity, **kwargs):
             # media files to the destination.
             error_msg = "Failed to link media for '%s'\n" % app_name
             instruction = ("Please copy the media files to the MEDIA_ROOT",
-                "manually\n")
+                           "manually\n")
             sys.stderr.write(color_style().ERROR(str(error_msg)))
             sys.stderr.write(" ".join(instruction))
