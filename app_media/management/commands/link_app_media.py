@@ -49,12 +49,13 @@ def link_app_media(app_path, verbosity, **kwargs):
     app_name = app_path.split('.')[-1]
     app_module = import_module(app_path)
     app_dir = os.path.dirname(app_module.__file__)
-    app_media = os.path.join(app_dir, 'media')
+    media_prefixes = getattr(settings, 'APP_MEDIA_PREFIXES', {})
+    app_media = os.path.join(app_dir, media_prefixes.get(app_name, 'media'))
 
     if not os.path.exists(app_media):
         return
 
-    APP_MEDIA_DIR = getattr(settings, 'APP_MEDIA_DIR',
+    APP_MEDIA_DIR = getattr(settings, 'APP_MEDIA_ROOT',
                 os.path.join(settings.MEDIA_ROOT, 'apps'))
     if not os.path.exists(APP_MEDIA_DIR):
         os.makedirs(APP_MEDIA_DIR)
