@@ -1,0 +1,15 @@
+This application provides management command to link
+application-specific media files to project media directory:
+    $ ./manage.py link_app_media
+
+For every application in settings.INSTALLED_APPS it will look for source
+directory and if there is 'media' directory it will be symlinked to
+    MEDIA_ROOT/apps/%(app_name)s
+
+If application's media directory is called static or other, you can set it:
+    APP_MEDIA_PREFIXES = {
+        'app_name': 'static',
+    }
+
+Also you can set destination directory:
+    APP_MEDIA_ROOT = MEDIA_ROOT
